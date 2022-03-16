@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ffca73702ee9146ba83dc5c1932dc6, type: 3}
+  m_Name: Sentence5
+  m_EditorClassIdentifier: 
+  originalSentence: "\rBehind the wall was a heavy reflection that made him shart."
+  ourBlankVariants:
+  - blankVariantType: 0
+    theSentence: "\rBehind the ____ was a heavy reflection that made him shart."
+  - blankVariantType: 1
+    theSentence: "\rBehind the wall was a heavy reflection that made him ____."
+  - blankVariantType: 3
+    theSentence: "\rBehind the wall was a ____ reflection that made him shart."
