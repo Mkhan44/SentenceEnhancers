@@ -19,7 +19,7 @@ public class GameplayManager : MonoBehaviour
         judging
     }
     
-
+    //TURN THESE ALL INTO PROPERTIES (If they aren't being assigned in inspector)
     public GameObject playerCanvasParent;
     public GameObject wordCardPrefab;
     public GameObject itemCardPrefab;
@@ -30,8 +30,8 @@ public class GameplayManager : MonoBehaviour
     public int submittedWords;
 
     //Game rules:
-    public int pointsToWin;
-    public bool specialWinCondition;
+    private int pointsToWin;
+    private bool specialWinCondition;
 
     //UI Related
     public GameObject playerInfoInstancePrefab;
@@ -79,6 +79,10 @@ public class GameplayManager : MonoBehaviour
 
     bool firstTurn;
 
+    //Properties
+    public int PointsToWin { get => pointsToWin; set => pointsToWin = value; }
+    public bool SpecialWinCondition { get => specialWinCondition; set => specialWinCondition = value; }
+
     private void Start()
     {
         firstTurn = true;
@@ -93,7 +97,7 @@ public class GameplayManager : MonoBehaviour
         }
 
         CreateDecks();
-        specialWinCondition = false;
+        SpecialWinCondition = false;
         submittedWords = 0;
         pointsToWin = 10;
         currentPhase = Phase.playerStart;

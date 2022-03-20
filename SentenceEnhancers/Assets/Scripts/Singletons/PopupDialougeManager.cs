@@ -8,9 +8,10 @@ public class PopupDialougeManager : MonoBehaviour
     public static PopupDialougeManager instance;
     [Header("Regular popup")]
     public GameObject popupPrefab;
-    [Header("Item useage")]
+    [Header("Item usage")]
     public GameObject opponentItemPopupPrefab;
     public GameObject opponentButtonPrefab;
+    public ItemManager itemManagerRef;
 
     public List<GameObject> activePopups;
     private void Awake()

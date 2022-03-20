@@ -14,7 +14,7 @@ public class PopupDialouge : MonoBehaviour
 
     private void Awake()
     {
-        itemManagerRef = PopupDialougeManager.instance.gameObject.transform.parent.GetComponentInChildren<ItemManager>();
+        itemManagerRef = PopupDialougeManager.instance.itemManagerRef;
         PopupDialougeManager.instance.AddActivePopupToList(gameObject);
     }
     public void SetupPopup(string dialougeMessage, string noticeMessage = "Notice!")
