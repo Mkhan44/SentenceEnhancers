@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class Category : MonoBehaviour
 {
-    public enum BaseCategory
+    public enum ChainCategory
     {
         Length,
         LetterPreference,
     }
 
-    public BaseCategory baseCategory;
+    public ChainCategory chainCategory;
 }

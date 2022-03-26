@@ -71,8 +71,8 @@ public class GameplayManager : MonoBehaviour
 
     public GameObject sentenceDisplayPanel;
     public SentenceData currentSentence;
-    public Category.BaseCategory currentBlankCategory;
-    public Tuple<int,int> currentBlankSubCategory;
+    public Category.ChainCategory currentBlankCategory;
+    public Tuple<Category.ChainCategory,int> currentBlankSubCategory;
 
     //Items
     public ItemManager itemMangerReference;
@@ -131,7 +131,7 @@ public class GameplayManager : MonoBehaviour
             if (sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceText.text == tempString)
             {
                // Debug.Log($"ACTIVATING CARD: {i}");
-                sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceText.text = tempString.Replace("____", wordPlayed.word);
+                sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceText.text = tempString.Replace("____", wordPlayed.Word);
                 sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceBlankType.text = sentenceBlankText.text;
                 sentenceCardJudgeInstances[i].SetActive(false);
                 break;
@@ -179,16 +179,16 @@ public class GameplayManager : MonoBehaviour
                         //This switch is for seeing if player chain can be increased by playing the right type of word.
                         switch(currentBlankCategory)
                         {
-                            case Category.BaseCategory.Length:
+                            case Category.ChainCategory.Length:
                                 {
                                     //TEST
-                                    if (wordCardPrefab.wordData.word.Length >= 4)
+                                    if (wordCardPrefab.wordData.Word.Length >= 4)
                                     {
                                         CheckChain(player);
                                     }
                                     break;
                                 }
-                            case Category.BaseCategory.LetterPreference:
+                            case Category.ChainCategory.LetterPreference:
                                 {
                                    // Debug.Log("LETTER PREFERENCE!");
                                     break;
@@ -494,8 +494,8 @@ public class GameplayManager : MonoBehaviour
             cardToDraw.wordData = wordDataToCheck;
 
 
-            cardToDraw.cardWordText.text = wordDataToCheck.word;
-            cardToDraw.cardTypeText.text = wordDataToCheck.wordGroup.ToString();
+            cardToDraw.cardWordText.text = wordDataToCheck.Word;
+            cardToDraw.cardTypeText.text = wordDataToCheck.WordGroup.ToString();
 
             if (currentPlayer.wordPrefabsInHand.Count > 0)
             {
@@ -635,8 +635,8 @@ public class GameplayManager : MonoBehaviour
                 for (int j = 0; j < thisPlayer.wordPrefabsInHand.Count; j++)
                 {
                     WordCardPrefab currentWordCard = thisPlayer.wordPrefabsInHand[j];
-                    currentWordCard.cardWordText.text = thisPlayer.wordPrefabsInHand[j].wordData.word;
-                    currentWordCard.cardTypeText.text = thisPlayer.wordPrefabsInHand[j].wordData.wordGroup.ToString();
+                    currentWordCard.cardWordText.text = thisPlayer.wordPrefabsInHand[j].wordData.Word;
+                    currentWordCard.cardTypeText.text = thisPlayer.wordPrefabsInHand[j].wordData.WordGroup.ToString();
 
                     int tempNum = j;
                     // Debug.Log(player.wordsInHand[tempNum]);
@@ -743,14 +743,14 @@ public class GameplayManager : MonoBehaviour
         //Since we're doing so much randomizing...maybe make a 'randomize' function that takes in a min/max and spits out a number?
         randSentence = Random.Range(0, thisGameSentencesDeck.Count);
         randBlankType = Random.Range(0, thisGameSentencesDeck[randSentence].ourBlankVariants.Count);
-        randBlankCategory = Random.Range(0, typeof(Category.BaseCategory).GetFields().Length);
+        randBlankCategory = Random.Range(0, typeof(Category.ChainCategory).GetFields().Length);
 
         //Randomize the base category for this card. Will need to change this based on single player to skew for certain opponents.
-        foreach(Category.BaseCategory baseCategory in Enum.GetValues(typeof(Category.BaseCategory)))
+        foreach(Category.ChainCategory chainCategory in Enum.GetValues(typeof(Category.ChainCategory)))
         {
-            if((int)baseCategory == randBlankCategory)
+            if((int)chainCategory == randBlankCategory)
             {
-                currentBlankCategory = baseCategory;
+                currentBlankCategory = chainCategory;
                 break;
             }
         }
@@ -758,56 +758,29 @@ public class GameplayManager : MonoBehaviour
         //Randomize the subcategory based on our main category.
         switch(currentBlankCategory)
         {
-            case Category.BaseCategory.Length:
+            case Category.ChainCategory.Length:
                 {
                     //Randomize between options in length...
                     randBlankSubCategory = Random.Range(0, typeof(WordManager.LengthSize).GetFields().Length);
-                    foreach (WordManager.LengthSize lengthSize in Enum.GetValues(typeof(WordManager.LengthSize)))
-                    {
-                        if((int)lengthSize == randBlankSubCategory)
-                        {
-                            currentBlankSubCategory = new Tuple<int, int>((int)lengthSize, randBlankSubCategory);
-                            break;
-                        }
-                    }
+                    currentBlankSubCategory = new Tuple<Category.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
                     break;
                 }
-            case Category.BaseCategory.LetterPreference:
+            case Category.ChainCategory.LetterPreference:
                 {
                     //Need something to handle this...Basically 1-26 for alphabet english version.
-                    randBlankSubCategory = Random.Range(0, 27);
-                    currentBlankSubCategory = new Tuple<int, int>(0, randBlankSubCategory);
+                    //97 - 123 will be 'a' through 'z' lowercase for the Alphabet. Used ASCII table for this conversion in char form.
+                    randBlankSubCategory = Random.Range(97, 123);
+                    currentBlankSubCategory = new Tuple<Category.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
                     break;
                 }
             default:
                 {
-                    //Randomize between options in length...
+                    //EXTRA, not needed for now. Just a placeholder.
                     randBlankSubCategory = Random.Range(0, typeof(WordManager.WordGroup).GetFields().Length);
-                    foreach (WordManager.WordGroup wordGroup in Enum.GetValues(typeof(WordManager.WordGroup)))
-                    {
-                        if ((int)wordGroup == randBlankSubCategory)
-                        {
-                            currentBlankSubCategory = new Tuple<int, int>((int)wordGroup, randBlankSubCategory);
-                            break;
-                        }
-                    }
+                    currentBlankSubCategory = new Tuple<Category.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
                     break;
                 }
         }
-
-        //TEST
-        //if(GetSubCategory().GetType() == typeof(WordManager.LengthSize))
-        //{
-        //    Debug.Log("GETSUBCATEGORY: LENGTHSIZE");
-        //}
-        //else if (GetSubCategory().GetType() == typeof(WordManager.WordGroup))
-        //{
-        //    Debug.Log("GETSUBCATEGORY: WORDGROUP");
-        //}
-        //else
-        //{
-        //    Debug.Log("GETSUBCATEGORY: LETTERPREFERENCE");
-        //}
 
         currentSentence = thisGameSentencesDeck[randSentence];
         string tempString = currentSentence.ourBlankVariants[randBlankType].theSentence;
@@ -836,7 +809,7 @@ public class GameplayManager : MonoBehaviour
 
         switch(currentBlankCategory)
         {
-            case Category.BaseCategory.Length:
+            case Category.ChainCategory.Length:
                 {
                     foreach (WordManager.LengthSize lengthSize in Enum.GetValues(typeof(WordManager.LengthSize)))
                     {
@@ -847,9 +820,9 @@ public class GameplayManager : MonoBehaviour
                     }
                     break;
                 }
-            case Category.BaseCategory.LetterPreference:
+            case Category.ChainCategory.LetterPreference:
                 {
-                    return Category.BaseCategory.LetterPreference;
+                    return Category.ChainCategory.LetterPreference;
                 }
             default:
                 {

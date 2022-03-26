@@ -6,5 +6,5 @@ using UnityEngine;
 public class WordListData : ScriptableObject
 {
     public List<WordData> wordList;
-
+    //
 }
