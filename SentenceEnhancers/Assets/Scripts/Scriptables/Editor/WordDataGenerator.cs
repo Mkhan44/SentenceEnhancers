@@ -1,59 +1,115 @@
+//Code written by Mohamed Riaz Khan of BukuGames.
+//All code is written by me (Above name) unless otherwise stated via comments below.
+//Not authorized for use outside of the Github repository of this game developed by BukuGames.
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class WordDataGenerator : EditorWindow
+[CustomEditor(typeof(WordGeneratorList))]
+[CanEditMultipleObjects]
+public class WordDataGeneratorEditorWindow : Editor
 {
-    private string theWord;
-    private WordManager.WordGroup wordGroup;
-    private bool isEighteenPlus;
+    WordGeneratorList wordGeneratorList;
 
     private const string SLANGFOLDERPATH = "Assets/WordData/WordTypes/Slang/";
     private const string INTERNETACRONYMFOLDERPATH = "Assets/WordData/WordTypes/InternetAcronym/";
     [MenuItem("SE Tools/Generators/Word Data Generator")]
     public static void ShowWindow()
     {
-        GetWindow(typeof(WordDataGenerator));
+       // GetWindow(typeof(WordDataGeneratorEditorWindow));
     }
 
-    private void OnGUI()
+    private void OnEnable()
     {
-        GUILayout.Label("Generate a WordData scriptable", EditorStyles.boldLabel);
-        theWord = EditorGUILayout.TextField("The word", theWord);
-
-        wordGroup = (WordManager.WordGroup)EditorGUILayout.EnumPopup("Word type", wordGroup);
-
-        isEighteenPlus = EditorGUILayout.Toggle("Is 18+", isEighteenPlus);
-
-        string basePath = string.Empty;
-        switch(wordGroup)
-        {
-            case WordManager.WordGroup.Slang:
-                {
-                    basePath = SLANGFOLDERPATH;
-                    break;
-                }
-            case WordManager.WordGroup.InternetAcronym:
-                {
-                    basePath = INTERNETACRONYMFOLDERPATH;
-                    break;
-                }
-        }
-
-        if (GUILayout.Button("Generate word!") && theWord != null)
-        {
-            //This will be based on the WordType. We'll check if it exists and then create it if it is not a duplicate.
-            string pathToCreateIn = basePath + theWord + ".asset";
-            WordData newWordData = (WordData)CreateInstance(typeof(WordData));
-            //Set the data to what the user has input.
-            newWordData.Word = theWord;
-            newWordData.IsEighteenPlus = isEighteenPlus;
-            newWordData.WordGroup = wordGroup;
-
-            AssetDatabase.CreateAsset(newWordData, pathToCreateIn);
-            Debug.Log($"Created a new word! {newWordData.name}");
-            EditorUtility.SetDirty(newWordData);
-        }
+        wordGeneratorList = (WordGeneratorList)FindObjectOfType(typeof(WordGeneratorList));
     }
+
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+
+        if(GUILayout.Button("GENERATE WORD"))
+        {
+            if(wordGeneratorList == null)
+            {
+                Debug.LogWarning("Couldn't find WordGeneratorList object in the scene! Please make sure there is 1 prefab in the scene.");
+                return;
+            }
+
+            List<WordGeneratorList.WordGeneratorListWrapper> wordGeneratorListWrapper = wordGeneratorList.wordGeneratorListWrappers;
+            string basePath = string.Empty;
+
+            for (int i = 0; i < wordGeneratorListWrapper.Count; i++)
+            {
+                if (wordGeneratorListWrapper[i].theWord != string.Empty)
+                {
+                    basePath = string.Empty;
+                    switch (wordGeneratorListWrapper[i].wordGroup)
+                    {
+                        case WordManager.WordGroup.Slang:
+                            {
+                                basePath = SLANGFOLDERPATH;
+                                break;
+                            }
+                        case WordManager.WordGroup.InternetAcronym:
+                            {
+                                basePath = INTERNETACRONYMFOLDERPATH;
+                                break;
+                            }
+                    }
+
+                    //This will be based on the WordType. We'll check if it exists and then create it if it is not a duplicate.
+                    string pathToCreateIn = basePath + wordGeneratorListWrapper[i].theWord + ".asset";
+
+                    //Check if the word already exists.
+                    string[] guids;
+                    bool alreadyExists = false;
+                    guids = AssetDatabase.FindAssets("t:WordData");
+                    foreach (string guid in guids)
+                    {
+                        if (AssetDatabase.GUIDToAssetPath(guid) == pathToCreateIn)
+                        {
+                            alreadyExists = true;
+                            Debug.LogWarning($"{pathToCreateIn} already exists!");
+                        }
+                    }
+
+                    if(alreadyExists)
+                    {
+                        continue;
+                    }
+                    WordData newWordData = (WordData)CreateInstance(typeof(WordData));
+                    //Set the data to what the user has input.
+                    newWordData.Word = wordGeneratorListWrapper[i].theWord;
+                    newWordData.IsEighteenPlus = wordGeneratorListWrapper[i].isEighteenPlus;
+                    newWordData.WordGroup = wordGeneratorListWrapper[i].wordGroup;
+
+
+                    AssetDatabase.CreateAsset(newWordData, pathToCreateIn);
+                    Debug.Log($"Created a new word! {newWordData.name}");
+                    EditorUtility.SetDirty(newWordData);
+                }
+            }
+        }
+
+        GUILayout.Space(50);
+
+        //Button to clear the list maybe?
+        //if(GUILayout.Button("Clear list"))
+        //{
+        //    if (wordGeneratorList == null)
+        //    {
+        //        Debug.LogWarning("Couldn't find WordGeneratorList object in the scene! Please make sure there is 1 prefab in the scene.");
+        //        return;
+        //    }
+
+        //    wordGeneratorList.wordGeneratorListWrappers.Clear();
+        //}
+
+    }
+
+    
 }
+
