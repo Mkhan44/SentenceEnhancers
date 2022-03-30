@@ -68,8 +68,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Player 1's turn
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c187e7a9b98df6242b19dbd0c7e4db4f, type: 2}
+  m_sharedMaterial: {fileID: -9057207783502988068, guid: c187e7a9b98df6242b19dbd0c7e4db4f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Freeze
   m_EditorClassIdentifier: 
   itemType: 0
+  itemCategory: 0
   itemSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   spriteColor: {r: 0.31910825, g: 0.86742264, b: 0.9528302, a: 1}
-  description: Freeze's a random card in an opponent's hand of your choice. The victim
-    can't use that card until their next turn.
+  description: Choose an opponent. The victim can't use a random word card in their
+    hand until their next turn.

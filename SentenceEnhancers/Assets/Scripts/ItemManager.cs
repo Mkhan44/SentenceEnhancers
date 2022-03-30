@@ -11,6 +11,9 @@ using Random = UnityEngine.Random;
 
 public class ItemManager : MonoBehaviour
 {
+
+    private const string PARENT_CANVAS = "Parent_Canvas";
+    private const string PLAYER_PANEL = "Player_Panel";
     public void ItemTypeHandler(ItemData itemData, Player_Gameplay currentPlayer, List<Player_Gameplay> playersList)  
     {
         switch(itemData.itemType)
@@ -39,23 +42,21 @@ public class ItemManager : MonoBehaviour
     public void OpponentTargetPopup(ItemData itemData, Player_Gameplay currentPlayer, List<Player_Gameplay> playersList)
     {
         //NEED A WAY TO CALL THIS.
-        GameObject playerPanel = GameObject.Find("Parent_Canvas");
-        if(playerPanel is null)
+        GameObject playerPanel = GameObject.Find(PARENT_CANVAS);
+        if (playerPanel is null)
         {
             Debug.LogWarning("Can't find Parent_Canvas !!!!");
             return;
         }
         GameObject tempObj = Instantiate(PopupDialougeManager.instance.opponentItemPopupPrefab, playerPanel.transform, false);
-        tempObj.GetComponent<PopupDialouge>().SetupOpponentPopup($"Choose an opponent to target with {itemData.itemType.ToString()}", PopupDialougeManager.instance.opponentButtonPrefab, 4, currentPlayer, playersList);
+        tempObj.GetComponent<PopupDialouge>().SetupOpponentPopup($"Choose an opponent to target with {itemData.itemType}", PopupDialougeManager.instance.opponentButtonPrefab, playersList.Count, currentPlayer, playersList);
     }
 
     //Item effects to pass into the button.
 
-    //playerToFreeze does nothing right now. Once we have all WordCardPrefabs somewhere in the scene, this will be easier to manipulate.
     public void FreezeWord(Player_Gameplay playerToFreeze)
     {
-        //For testing purposes, just freeze a wordcard in the player's hand. Obviously we want to freeze the opponent's random card.
-        GameObject playerPanel = GameObject.Find("Player_Panel");
+        GameObject playerPanel = GameObject.Find(PLAYER_PANEL);
         
         List<WordCardPrefab> unfrozenWordCardPrefabs = new List<WordCardPrefab>();
 

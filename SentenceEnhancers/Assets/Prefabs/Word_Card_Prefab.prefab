@@ -157,8 +157,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6148f9634653114784b6754481e8d81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wordData: {fileID: 0}
   cardTypeText: {fileID: 1470394837862931165}
   cardWordText: {fileID: 4617662810654464992}
+  isFrozen: 0
 --- !u!1 &4617662810654464990
 GameObject:
   m_ObjectHideFlags: 0
@@ -227,8 +229,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Test Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c187e7a9b98df6242b19dbd0c7e4db4f, type: 2}
+  m_sharedMaterial: {fileID: -9057207783502988068, guid: c187e7a9b98df6242b19dbd0c7e4db4f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -362,8 +364,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Group:'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c187e7a9b98df6242b19dbd0c7e4db4f, type: 2}
+  m_sharedMaterial: {fileID: -9057207783502988068, guid: c187e7a9b98df6242b19dbd0c7e4db4f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
