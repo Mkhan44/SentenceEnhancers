@@ -15,11 +15,7 @@ public class WordDataGeneratorEditorWindow : Editor
 
     private const string SLANGFOLDERPATH = "Assets/WordData/WordTypes/Slang/";
     private const string INTERNETACRONYMFOLDERPATH = "Assets/WordData/WordTypes/InternetAcronym/";
-    [MenuItem("SE Tools/Generators/Word Data Generator")]
-    public static void ShowWindow()
-    {
-       // GetWindow(typeof(WordDataGeneratorEditorWindow));
-    }
+ 
 
     private void OnEnable()
     {
@@ -60,8 +56,11 @@ public class WordDataGeneratorEditorWindow : Editor
                             }
                     }
 
+                    //Make sure only the first letter is capitalized of the word.
+                    string wordToUpper = char.ToUpper(wordGeneratorListWrapper[i].theWord[0]) + wordGeneratorListWrapper[i].theWord.Substring(1);
+
                     //This will be based on the WordType. We'll check if it exists and then create it if it is not a duplicate.
-                    string pathToCreateIn = basePath + wordGeneratorListWrapper[i].theWord + ".asset";
+                    string pathToCreateIn = basePath + wordToUpper + ".asset";
 
                     //Check if the word already exists.
                     string[] guids;
@@ -81,8 +80,9 @@ public class WordDataGeneratorEditorWindow : Editor
                         continue;
                     }
                     WordData newWordData = (WordData)CreateInstance(typeof(WordData));
+
                     //Set the data to what the user has input.
-                    newWordData.Word = wordGeneratorListWrapper[i].theWord;
+                    newWordData.Word = wordToUpper;
                     newWordData.IsEighteenPlus = wordGeneratorListWrapper[i].isEighteenPlus;
                     newWordData.WordGroup = wordGeneratorListWrapper[i].wordGroup;
 

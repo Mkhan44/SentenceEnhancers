@@ -159,8 +159,6 @@ MonoBehaviour:
   sentenceCardPrefab: {fileID: 4617662809353409664, guid: ab3717dae3db1304798f7cabc5a48fd0, type: 3}
   currentPhase: 0
   submittedWords: 0
-  pointsToWin: 0
-  specialWinCondition: 0
   playerInfoInstancePrefab: {fileID: 6989311874030934803, guid: bd32885cda72ff34795e0e35ac204ebf, type: 3}
   playerUIInfoPanel: {fileID: 0}
   playerTableInfoPrefab: {fileID: 3149392323314310226, guid: 43f68978da545604fa2fb33838c22e44, type: 3}
@@ -170,7 +168,7 @@ MonoBehaviour:
   playerManagerPrefab: {fileID: 8094668960792561084, guid: ee8d80484b3182f4daa542819535d1aa, type: 3}
   playersManagerReference: {fileID: 7889957930443425030}
   playersList: []
-  nounWordData: {fileID: 11400000, guid: f4b71202b17b47c4b8d0df46adaf99dd, type: 2}
+  nounWordData: {fileID: 11400000, guid: edbb8e7b8d5d45e429c689f16fa9a372, type: 2}
   verbWordData: {fileID: 11400000, guid: 33d3a93490248004db332462ada39d4b, type: 2}
   sentencesData: {fileID: 11400000, guid: df081d616d8089c48bbe67af7093f090, type: 2}
   itemDataListToUse: {fileID: 11400000, guid: 89217cb6df8c31c49bd2fad8ddb5c425, type: 2}
