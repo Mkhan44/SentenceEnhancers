@@ -111,192 +111,7 @@ public class GameplayManager : MonoBehaviour
         SetPhase(Phase.playerStart);
     }
 
-    //Plays the Word card to fill in the sentence blank.
-    public void PlayWordCard(Button theButton, WordData wordPlayed, int playerID)
-    {
-        WordCardPrefab theWordCard = theButton.gameObject.GetComponent<WordCardPrefab>();
-
-        if(theWordCard.GetFrozenState())
-        {
-            GameObject tempObj = Instantiate(PopupDialougeManager.instance.popupPrefab, playerCanvasParent.GetComponentInParent<Canvas>().transform, false);
-            tempObj.GetComponent<PopupDialouge>().SetupPopup("This word is frozen! You can't use it this turn.");
-            return;
-        }
-
-        TextMeshProUGUI sentenceDisplayText = sentenceDisplayPanel.GetComponentInChildren<SentenceCardPrefab>().sentenceText;
-        TextMeshProUGUI sentenceBlankText = sentenceDisplayPanel.GetComponentInChildren<SentenceCardPrefab>().sentenceBlankType;
-
-        string tempString = sentenceDisplayText.text;
-
-
-        for (int i = 0; i < sentenceCardJudgeInstances.Count; i++)
-        {
-            sentenceCardJudgeInstances[i].SetActive(true);
-            if (sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceText.text == tempString)
-            {
-               // Debug.Log($"ACTIVATING CARD: {i}");
-                sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceText.text = tempString.Replace("____", wordPlayed.Word);
-                sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceBlankType.text = sentenceBlankText.text;
-                sentenceCardJudgeInstances[i].SetActive(false);
-                break;
-            }
-            sentenceCardJudgeInstances[i].SetActive(false);
-        }
-       
-
-        bool foundWord = false;
-        foreach(Player_Gameplay player in playersList)
-        {
-            if(foundWord)
-            {
-                if(!player.isCurrentlyJudge)
-                {
-                    //If we're the last player, then check if player 1 = judge. If they are not, draw their card. Otherwise draw player 2.
-                    if ((player.playerID + 1) == playersList.Count || playersList[playerID+1].playerID == playersList.Count)
-                    {
-                        RecreateHand(player.playerID);
-                        break;
-                    }
-                    //Recreate the next player's hand.
-                    if(!playersList[player.playerID + 1].isCurrentlyJudge)
-                    {
-                        RecreateHand(player.playerID);
-                        break;
-                    }
-                    //Recreate the first player's hand since the last player is the judge and we are the 2nd to last player.
-                    else if (playersList[player.playerID +1].playerID == playersList.Count-1)
-                    {
-                        RecreateHand(0);
-                        break;
-                    }
-                    continue;
-                }
-               
-            }
-            if(player.playerID == playerID && !foundWord)
-            {
-                foreach(WordCardPrefab wordCardPrefab in player.wordPrefabsInHand)
-                {
-                    if(wordCardPrefab.wordData == wordPlayed)
-                    {
-                        //Check based on the Blank type if the submitted word matches. If it does, increase chain bonus. This will need to be refactored for versatility with multiple categories and what not in the future.
-                        //This switch is for seeing if player chain can be increased by playing the right type of word.
-                        switch(currentBlankCategory)
-                        {
-                            case WordManager.ChainCategory.Length:
-                                {
-                                    //TEST
-                                    if (wordCardPrefab.wordData.Word.Length >= 4)
-                                    {
-                                        CheckChain(player);
-                                    }
-                                    break;
-                                }
-                            case WordManager.ChainCategory.LetterPreference:
-                                {
-                                    if(WordManager.CheckLetterPreference(wordPlayed.Word, (char)currentBlankSubCategory.Item2))
-                                    {
-                                        CheckChain(player);
-                                    }
-                                    break;
-                                }
-                            default:
-                                {
-                                    Debug.LogError("Couldn't find currentBlankCategory!!!");
-                                    break;
-                                }
-                        }
-                      
-                        player.wordPrefabsInHand.Remove(wordCardPrefab);
-                        Destroy(wordCardPrefab.gameObject);
-                        player.cardsInHand -= 1;
-                        player.UpdateCardsInHand(player.cardsInHand);
-                        SubmitWord();
-                        foundWord = true;
-                        if ((player.playerID + 1) == playersList.Count || playersList[playerID + 1].playerID == playersList.Count)
-                        {
-                            //BAD NEED TO CHANGE THIS!!!!
-                            if (!playersList[0].isCurrentlyJudge)
-                            {
-                                RecreateHand(0);
-                            }
-                            else
-                            {
-                                RecreateHand(1);
-                            }
-                            break;
-                        }
-                        //Recreate the first player's hand since the last player is the judge and we are the 2nd to last player.
-                        else if (playersList[player.playerID + 1].playerID == playersList.Count - 1)
-                        {
-                            RecreateHand(0);
-                            break;
-                        }
-
-                        break;
-                    }
-
-                }
-            }
-        }
-        //For now, we'll have the other players just play their word cards.
-        theButton.onClick.RemoveAllListeners();
-    }
-
-    public void CheckChain(Player_Gameplay player)
-    {
-        if (player.currentChain < 5)
-        {
-            player.currentChain += 1;
-            player.UpdateChain(player.currentChain);
-        }
-    }
-
-    //Call the function from the ItemManager that we have to do a certain card effect.
-    public void PlayItemCard(Button theButton, ItemData itemPlayed, Player_Gameplay currentPlayer)
-    {
-        if (currentPlayer.usedItemThisTurn)
-        {
-            GameObject tempObj = Instantiate(PopupDialougeManager.instance.popupPrefab, playerCanvasParent.GetComponentInParent<Canvas>().transform, false);
-            tempObj.GetComponent<PopupDialouge>().SetupPopup("You already used an item this turn!");
-            Debug.LogWarning("You already used an item this turn!");
-            return;
-        }
-        else
-        {
-
-            itemMangerReference.ItemTypeHandler(itemPlayed, currentPlayer, playersList);
-
-            //Execute the code below if they used the item via the dialouge box...For now just leave this here.
-            foreach (Player_Gameplay player in playersList)
-            {
-                if (player.playerID == currentPlayer.playerID)
-                {
-
-                    List<ItemCardPrefab> cachedListOfItems = new List<ItemCardPrefab>(player.itemPrefabsInHand);
-                    //Could have multiple of the same item...The index might need to be used here.
-                    foreach (ItemCardPrefab itemPrefab in cachedListOfItems)
-                    {
-                        if (itemPrefab.itemData == itemPlayed)
-                        {
-                            Debug.LogWarning($"Used the {itemPlayed.itemType} item!");
-                            player.itemPrefabsInHand.Remove(itemPrefab);
-                            Destroy(itemPrefab.gameObject);
-                            player.cardsInHand -= 1;
-                            player.UpdateCardsInHand(player.cardsInHand);
-                            RecreateHand(currentPlayer.playerID);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            currentPlayer.ToggleUsedItem(true);
-        }
-
-        //For now, we'll have the other players just play their word cards.
-        theButton.onClick.RemoveAllListeners();
-    }
+ 
 
 
     public void RecreateHand(int id)
@@ -670,11 +485,9 @@ public class GameplayManager : MonoBehaviour
                 thisPlayer.ToggleUsedItem(false);
             }
 
-            //TESTING:
+            //TESTING: we'll need to randomize the first judge and so you won't have 0 being what's drawn.
             RecreateHand(0);
             //TESTING:
-
-            //
 
             firstTurn = false;
         }
@@ -736,6 +549,207 @@ public class GameplayManager : MonoBehaviour
         SetPhase(Phase.judgeStart);
     }
 
+    //Plays the Word card to fill in the sentence blank.
+    public void PlayWordCard(Button theButton, WordData wordPlayed, int playerID)
+    {
+        WordCardPrefab theWordCard = theButton.gameObject.GetComponent<WordCardPrefab>();
+
+        if (theWordCard.GetFrozenState())
+        {
+            GameObject tempObj = Instantiate(PopupDialougeManager.instance.popupPrefab, playerCanvasParent.GetComponentInParent<Canvas>().transform, false);
+            tempObj.GetComponent<PopupDialouge>().SetupPopup("This word is frozen! You can't use it this turn.");
+            return;
+        }
+
+        TextMeshProUGUI sentenceDisplayText = sentenceDisplayPanel.GetComponentInChildren<SentenceCardPrefab>().sentenceText;
+        TextMeshProUGUI sentenceBlankText = sentenceDisplayPanel.GetComponentInChildren<SentenceCardPrefab>().sentenceBlankType;
+
+        string tempString = sentenceDisplayText.text;
+
+
+        for (int i = 0; i < sentenceCardJudgeInstances.Count; i++)
+        {
+            sentenceCardJudgeInstances[i].SetActive(true);
+            if (sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceText.text == tempString)
+            {
+                // Debug.Log($"ACTIVATING CARD: {i}");
+                sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceText.text = tempString.Replace("____", wordPlayed.Word);
+                sentenceCardJudgeInstances[i].GetComponentInChildren<SentenceCardPrefab>().sentenceBlankType.text = sentenceBlankText.text;
+                sentenceCardJudgeInstances[i].SetActive(false);
+                break;
+            }
+            sentenceCardJudgeInstances[i].SetActive(false);
+        }
+
+
+        bool foundWord = false;
+
+        foreach (Player_Gameplay player in playersList)
+        {
+            if (foundWord)
+            {
+                if (!player.isCurrentlyJudge)
+                {
+                    //If we're the last player, then check if player 1 = judge. If they are not, draw their card. Otherwise draw player 2.
+                    if ((player.playerID + 1) == playersList.Count || playersList[playerID + 1].playerID == playersList.Count)
+                    {
+                        RecreateHand(player.playerID);
+                        break;
+                    }
+                    //Recreate the next player's hand.
+                    if (!playersList[player.playerID + 1].isCurrentlyJudge)
+                    {
+                        RecreateHand(player.playerID);
+                        break;
+                    }
+                    //Recreate the first player's hand since the last player is the judge and we are the 2nd to last player.
+                    else if (playersList[player.playerID + 1].playerID == playersList.Count - 1)
+                    {
+                        RecreateHand(0);
+                        break;
+                    }
+                    continue;
+                }
+
+            }
+            if (player.playerID == playerID && !foundWord)
+            {
+                foreach (WordCardPrefab wordCardPrefab in player.wordPrefabsInHand)
+                {
+                    if (wordCardPrefab.wordData == wordPlayed)
+                    {
+                        //Check based on the Blank type if the submitted word matches. If it does, increase chain bonus. This will need to be refactored for versatility with multiple categories and what not in the future.
+                        //This switch is for seeing if player chain can be increased by playing the right type of word.
+                        CheckIfPlayerHasFulfilledChainBonus(wordPlayed, player);
+
+                        player.wordPrefabsInHand.Remove(wordCardPrefab);
+                        Destroy(wordCardPrefab.gameObject);
+                        player.cardsInHand -= 1;
+                        player.UpdateCardsInHand(player.cardsInHand);
+                        SubmitWord();
+                        foundWord = true;
+                        if ((player.playerID + 1) == playersList.Count || playersList[playerID + 1].playerID == playersList.Count)
+                        {
+                            //BAD NEED TO CHANGE THIS!!!!
+                            if (!playersList[0].isCurrentlyJudge)
+                            {
+                                RecreateHand(0);
+                            }
+                            else
+                            {
+                                RecreateHand(1);
+                            }
+                            break;
+                        }
+                        //Recreate the first player's hand since the last player is the judge and we are the 2nd to last player.
+                        else if (playersList[player.playerID + 1].playerID == playersList.Count - 1)
+                        {
+                            RecreateHand(0);
+                            break;
+                        }
+
+                        break;
+                    }
+
+                }
+            }
+        }
+        //For now, we'll have the other players just play their word cards.
+        theButton.onClick.RemoveAllListeners();
+    }
+
+    private void CheckIfPlayerHasFulfilledChainBonus(WordData wordPlayed, Player_Gameplay player)
+    {
+        switch (currentBlankCategory)
+        {
+            case WordManager.ChainCategory.Length:
+                {
+                    //This 2nd parameter is iffy, because we need to MAKE SURE that we're returning a length size.
+                    if (WordManager.CheckWordLength(wordPlayed.Word, (WordManager.LengthSize)GetSubCategory()))
+                    {
+                        CheckChain(player);
+                    }
+                    break;
+                }
+            case WordManager.ChainCategory.LetterPreference:
+                {
+                    if (WordManager.CheckLetterPreference(wordPlayed.Word, (char)currentBlankSubCategory.Item2))
+                    {
+                        CheckChain(player);
+                    }
+                    break;
+                }
+            case WordManager.ChainCategory.WordGroup:
+                {
+                    if (WordManager.CheckWordGroup(wordPlayed, (WordManager.WordGroup)GetSubCategory()))
+                    {
+                        CheckChain(player);
+                    }
+                    break;
+                }
+            default:
+                {
+                    Debug.LogError("Couldn't find currentBlankCategory!!!");
+                    break;
+                }
+        }
+    }
+
+    public void CheckChain(Player_Gameplay player)
+    {
+        if (player.currentChain < 5)
+        {
+            player.currentChain += 1;
+            player.UpdateChain(player.currentChain);
+        }
+    }
+
+    //Call the function from the ItemManager that we have to do a certain card effect.
+    public void PlayItemCard(Button theButton, ItemData itemPlayed, Player_Gameplay currentPlayer)
+    {
+        if (currentPlayer.usedItemThisTurn)
+        {
+            GameObject tempObj = Instantiate(PopupDialougeManager.instance.popupPrefab, playerCanvasParent.GetComponentInParent<Canvas>().transform, false);
+            tempObj.GetComponent<PopupDialouge>().SetupPopup("You already used an item this turn!");
+            Debug.LogWarning("You already used an item this turn!");
+            return;
+        }
+        else
+        {
+
+            itemMangerReference.ItemTypeHandler(itemPlayed, currentPlayer, playersList);
+
+            //Execute the code below if they used the item via the dialouge box...For now just leave this here.
+            foreach (Player_Gameplay player in playersList)
+            {
+                if (player.playerID == currentPlayer.playerID)
+                {
+
+                    List<ItemCardPrefab> cachedListOfItems = new List<ItemCardPrefab>(player.itemPrefabsInHand);
+                    //Could have multiple of the same item...The index might need to be used here.
+                    foreach (ItemCardPrefab itemPrefab in cachedListOfItems)
+                    {
+                        if (itemPrefab.itemData == itemPlayed)
+                        {
+                            Debug.LogWarning($"Used the {itemPlayed.itemType} item!");
+                            player.itemPrefabsInHand.Remove(itemPrefab);
+                            Destroy(itemPrefab.gameObject);
+                            player.cardsInHand -= 1;
+                            player.UpdateCardsInHand(player.cardsInHand);
+                            RecreateHand(currentPlayer.playerID);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            currentPlayer.ToggleUsedItem(true);
+        }
+
+        //For now, we'll have the other players just play their word cards.
+        theButton.onClick.RemoveAllListeners();
+    }
+
     private void DrawSentenceCard()
     {
         int randSentence;
@@ -753,42 +767,14 @@ public class GameplayManager : MonoBehaviour
         //Randomize the base category for this card. Will need to change this based on single player to skew for certain opponents.
         foreach (WordManager.ChainCategory chainCategory in Enum.GetValues(typeof(WordManager.ChainCategory)))
         {
-            if((int)chainCategory == randBlankCategory)
+            if ((int)chainCategory == randBlankCategory)
             {
                 currentBlankCategory = chainCategory;
                 break;
             }
         }
-        
-        //Randomize the subcategory based on our main category.
-        switch(currentBlankCategory)
-        {
-            case WordManager.ChainCategory.Length:
-                {
-                    //Randomize between options in length...
-                    randBlankSubCategory = Random.Range(0, typeof(WordManager.LengthSize).GetFields().Length);
-                    currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
-                    sentenceBlankText.text = currentBlankCategory.ToString();
-                    break;
-                }
-            case WordManager.ChainCategory.LetterPreference:
-                {
-                    //Need something to handle this...Basically 1-26 for alphabet english version.
-                    //97 - 123 will be 'a' through 'z' lowercase for the Alphabet. Used ASCII table for this conversion in char form.
-                    randBlankSubCategory = Random.Range(97, 123);
-                    currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
-                    sentenceBlankText.text = currentBlankCategory.ToString() + " : " + (char)currentBlankSubCategory.Item2;
-                    break;
-                }
-            default:
-                {
-                    //EXTRA, not needed for now. Just a placeholder.
-                    randBlankSubCategory = Random.Range(0, typeof(WordManager.WordGroup).GetFields().Length);
-                    currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
-                    sentenceBlankText.text = currentBlankCategory.ToString();
-                    break;
-                }
-        }
+
+        SetSubCategory(sentenceBlankText);
 
         currentSentence = thisGameSentencesDeck[randSentence];
         string tempString = currentSentence.ourBlankVariants[randBlankType].theSentence;
@@ -804,8 +790,58 @@ public class GameplayManager : MonoBehaviour
 
         //UPDATE THIS TO RANDOMIZE A SENTENCE WITHIN THE DECK + IT'S TYPE/BLANK.
         sentenceDisplayText.text = tempString;
-        
 
+
+    }
+
+    private int SetSubCategory(TextMeshProUGUI sentenceBlankText)
+    {
+        int randBlankSubCategory;
+        //Randomize the subcategory based on our main category.
+        switch (currentBlankCategory)
+        {
+            case WordManager.ChainCategory.Length:
+                {
+                    //Randomize between options in length...
+                    randBlankSubCategory = Random.Range(0, typeof(WordManager.LengthSize).GetFields().Length - 1);
+                    currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
+
+                    //Need some way to verify that this is LengthSize but it should be if the Tuple is correct.
+                    WordManager.LengthSize subCategoryLengthSize = (WordManager.LengthSize)GetSubCategory();
+                    sentenceBlankText.text = currentBlankCategory.ToString() + " : " + subCategoryLengthSize;
+                    break;
+                }
+            case WordManager.ChainCategory.LetterPreference:
+                {
+                    //Need something to handle this...Basically 1-26 for alphabet english version.
+                    //97 - 123 will be 'a' through 'z' lowercase for the Alphabet. Used ASCII table for this conversion in char form.
+                    randBlankSubCategory = Random.Range(97, 123);
+                    currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
+                    sentenceBlankText.text = currentBlankCategory.ToString() + " : " + (char)currentBlankSubCategory.Item2;
+                    break;
+                }
+            case WordManager.ChainCategory.WordGroup:
+                {
+                    //This will have to only take into account all current WordTypes in the current game.
+                    //So don't put something like 'Slang' when there are no Slang cards available in the deck.
+                    randBlankSubCategory = Random.Range(0, typeof(WordManager.WordGroup).GetFields().Length - 1);
+                    currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
+                    WordManager.WordGroup subCategoryWordGroup = (WordManager.WordGroup)GetSubCategory();
+
+                    sentenceBlankText.text = currentBlankCategory.ToString() + " : " + subCategoryWordGroup;
+                    break;
+                }
+            default:
+                {
+                    //EXTRA, not needed for now. Just a placeholder.
+                    randBlankSubCategory = Random.Range(0, typeof(WordManager.WordGroup).GetFields().Length);
+                    currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
+                    sentenceBlankText.text = currentBlankCategory.ToString();
+                    break;
+                }
+        }
+
+        return randBlankSubCategory;
     }
 
     private Enum GetSubCategory()
@@ -831,6 +867,17 @@ public class GameplayManager : MonoBehaviour
             case WordManager.ChainCategory.LetterPreference:
                 {
                     return WordManager.ChainCategory.LetterPreference;
+                }
+            case WordManager.ChainCategory.WordGroup:
+                {
+                    foreach (WordManager.WordGroup wordGroup in Enum.GetValues(typeof(WordManager.WordGroup)))
+                    {
+                        if ((int)wordGroup == currentBlankSubCategory.Item2)
+                        {
+                            return wordGroup;
+                        }
+                    }
+                    break;
                 }
             default:
                 {
