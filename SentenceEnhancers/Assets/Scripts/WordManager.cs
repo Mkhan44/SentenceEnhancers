@@ -12,6 +12,7 @@ public static class WordManager
 {
     public enum ChainCategory
     {
+        None,
         Length,
         LetterPreference,
         WordGroup,

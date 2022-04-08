@@ -761,7 +761,7 @@ public class GameplayManager : MonoBehaviour
 
         //Since we're doing so much randomizing...maybe make a 'randomize' function that takes in a min/max and spits out a number?
         randSentence = Random.Range(0, thisGameSentencesDeck.Count);
-        randBlankType = Random.Range(0, thisGameSentencesDeck[randSentence].ourBlankVariants.Count);
+        randBlankType = Random.Range(0, thisGameSentencesDeck[randSentence].OurBlankVariants.Count);
         randBlankCategory = Random.Range(0, typeof(WordManager.ChainCategory).GetFields().Length);
 
         //Randomize the base category for this card. Will need to change this based on single player to skew for certain opponents.
@@ -777,7 +777,7 @@ public class GameplayManager : MonoBehaviour
         SetSubCategory(sentenceBlankText);
 
         currentSentence = thisGameSentencesDeck[randSentence];
-        string tempString = currentSentence.ourBlankVariants[randBlankType].theSentence;
+        string tempString = currentSentence.OurBlankVariants[randBlankType].BlankVariant;
 
         for (int i = 0; i < (numPlayers - 1); i++)
         {

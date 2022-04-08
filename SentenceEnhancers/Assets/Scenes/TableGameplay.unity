@@ -1622,6 +1622,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1930951179}
+  - {fileID: 5651921738544842517}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1799,6 +1800,123 @@ PrefabInstance:
       objectReference: {fileID: 523247830}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 45318dfd349824f4bbb8629385f3069a, type: 3}
+--- !u!1001 &2699149458855373947
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 2061749928}
+    m_Modifications:
+    - target: {fileID: 2675754424676014185, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_Name
+      value: SentenceGenerator
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[0].dataName
+      value: ATestSentence
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[1].dataName
+      value: ATestSentence
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[0].originalSentence
+      value: This is a test sentence where we will test randomness looool
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[1].originalSentence
+      value: This is a test sentence where we will test randomness looool
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[0].categoryPreference
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[1].categoryPreference
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[0].ourBlankVariants.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[1].ourBlankVariants.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[0].ourBlankVariants.Array.data[0].blankVariant
+      value: This is a test sentence where we will test ____ looool
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[0].ourBlankVariants.Array.data[1].blankVariant
+      value: This is a test sentence ____ we will test randomness looool
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[0].ourBlankVariants.Array.data[2].blankVariant
+      value: This is a ____ sentence where we will test randomness looool
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[1].ourBlankVariants.Array.data[0].blankVariant
+      value: This is a test sentence where we will test ____ looool
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[1].ourBlankVariants.Array.data[1].blankVariant
+      value: This is a test sentence ____ we will test randomness looool
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823693673314706781, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: wordGeneratorListWrappers.Array.data[1].ourBlankVariants.Array.data[2].blankVariant
+      value: This is a ____ sentence where we will test randomness looool
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
 --- !u!1001 &3621494116144678908
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1860,3 +1978,8 @@ PrefabInstance:
       objectReference: {fileID: 536211758}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c6e852c987ec5d409fc77c0e371afc5, type: 3}
+--- !u!4 &5651921738544842517 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7717734630581152622, guid: 35e098331db2bca459a03c36ee1aa860, type: 3}
+  m_PrefabInstance: {fileID: 2699149458855373947}
+  m_PrefabAsset: {fileID: 0}
