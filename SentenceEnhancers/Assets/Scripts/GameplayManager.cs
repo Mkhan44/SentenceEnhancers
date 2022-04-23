@@ -17,7 +17,7 @@ public class GameplayManager : MonoBehaviour
     public enum Phase 
     {
         playerStart,
-        judgeStart,
+        sentenceCardDraw,
         item,
         placeWord,
         judging
@@ -43,6 +43,10 @@ public class GameplayManager : MonoBehaviour
     public GameObject playerTableInfoPrefab;
     public GameObject playerTableInfoPanel;
     public TextMeshProUGUI playerUIInfoText;
+    public TextMeshProUGUI phaseText;
+    public GameObject phasePanel;
+    Coroutine phaseNoticeCoroutine;
+    [SerializeField] Queue<string> phaseNoticeQueue = new Queue<string>();
 
     //Player related
     public int numPlayers;
@@ -80,7 +84,6 @@ public class GameplayManager : MonoBehaviour
 
     //Items
     public ItemManager itemMangerReference;
-
     bool firstTurn;
 
     //Properties
@@ -104,23 +107,15 @@ public class GameplayManager : MonoBehaviour
         SpecialWinCondition = false;
         submittedWords = 0;
         pointsToWin = 10;
-        currentPhase = Phase.playerStart;
         GameObject playerTableInfoUI = Instantiate(playerTableInfoPrefab, playerTableInfoPanel.transform);
-        playerUIInfoText = playerTableInfoUI.GetComponentInChildren<TextMeshProUGUI>(); 
+        playerUIInfoText = playerTableInfoUI.GetComponentInChildren<TextMeshProUGUI>();
+        phasePanel.SetActive(false);
 
         SetPhase(Phase.playerStart);
     }
 
- 
-
-
     public void RecreateHand(int id)
     {
-        //foreach(Transform child in playerCanvasParent.transform)
-        //{
-        //    Destroy(child.gameObject);
-        //}
-
         foreach(Player_Gameplay player in playersList)
         {
             //Activate current player's cards.
@@ -149,11 +144,8 @@ public class GameplayManager : MonoBehaviour
                     currentItemCardNum += 1;
                 }
 
-              
-
                 if (currentPhase != Phase.judging)
                 {
-                    //Debug.Log("WE'RE CALLING RECREATEHAND THE ID IS:" + id);
                     playerUIInfoText.text = $"Player {player.playerID}'s turn";
                 }
                
@@ -177,7 +169,6 @@ public class GameplayManager : MonoBehaviour
     public void SubmitWord()
     {
         submittedWords += 1;
-       // Debug.Log($"Submitted words is: {submittedWords}");
 
         //Account for judge being in the mix.
         if(submittedWords >= numPlayers-1)
@@ -196,7 +187,6 @@ public class GameplayManager : MonoBehaviour
             SetPhase(Phase.judging);
             submittedWords = 0;
         }
-        
     }
 
     //Only used if we decide to let them use more than 1 item in a turn.
@@ -204,7 +194,6 @@ public class GameplayManager : MonoBehaviour
     {
         player.ToggleUsedItem(true);
     }
-
 
     private void CreateDecks()
     {
@@ -258,6 +247,7 @@ public class GameplayManager : MonoBehaviour
             if(maxCopiesOfEachItem[randomItemToPick] >= 1 && itemDataListToUse.wrappedItemLists[randomItemToPick] != null)
             {
                 //Debug.Log($"Found item: {itemDataListToUse.wrappedItemLists[randomItemToPick].itemData.name}");
+
                 //Take away 1 from the current copies.
                 maxCopiesOfEachItem[randomItemToPick] -= 1;
                 itemDeck.Add(itemDataListToUse.wrappedItemLists[randomItemToPick].itemData);
@@ -280,7 +270,6 @@ public class GameplayManager : MonoBehaviour
                     {
                         thisGameSentencesDeck.Add(sentenceToCheck);
                     }
-
                 }
                 //Add first one for sure since we know that there is not a duplicate.
                 else
@@ -293,8 +282,6 @@ public class GameplayManager : MonoBehaviour
         {
             Debug.LogWarning("The sentence List isn't big enough for the deck we want to create!");
         }
-
-
     }
 
     public void DrawWordCards(Player_Gameplay currentPlayer, int cardsToDraw)
@@ -338,7 +325,6 @@ public class GameplayManager : MonoBehaviour
                 {
                     listToDestroy.Add(tempCard);
                 }
-                
             }
 
             //Add first one for sure since we know that there is not a duplicate.
@@ -378,6 +364,14 @@ public class GameplayManager : MonoBehaviour
 
     public void SetPhase(Phase phaseToChangeTo)
     {
+
+        StartCoroutine(DelayPhase(phaseToChangeTo));
+
+    }
+
+    private IEnumerator DelayPhase(Phase phaseToChangeTo)
+    {
+        yield return new WaitForSeconds(1.0f);
         currentPhase = phaseToChangeTo;
         PhaseHandler();
     }
@@ -389,32 +383,38 @@ public class GameplayManager : MonoBehaviour
 
     public void PhaseHandler()
     {
+        string phaseText = "";
         switch (currentPhase)
         {
             case Phase.playerStart:
                 {
                     PlayerStartPhase();
+                    phaseText = "Start phase";
                     Debug.Log("Player start phase.");
                     break;
                 }
-            case Phase.judgeStart:
+            case Phase.sentenceCardDraw:
                 {
                     DrawSentenceCard();
+                    phaseText = "Sentence phase";
                     Debug.Log("Judge start phase.");
                     break;
                 }
             case Phase.item:
                 {
-                    Debug.Log("Item useage phase.");
+                    phaseText = "Item use phase";
+                    Debug.Log("Item usage phase.");
                     break;
                 }
             case Phase.placeWord:
                 {
+                    phaseText = "Word phase";
                     Debug.Log("Place word phase.");
                     break;
                 }
             case Phase.judging:
                 {
+                    phaseText = "Judging phase";
                     Debug.Log("Judging phase.");
                     JudgingCommence();
                     break;
@@ -425,10 +425,68 @@ public class GameplayManager : MonoBehaviour
                     break;
                 }
         }
+
+        SetupPhaseNoticeDisplay(phaseText);
+
+    }
+
+
+    public void SetupPhaseNoticeDisplay(string textToDisplay, bool skip = false)
+    {
+        phasePanel.SetActive(true);
+        if (phaseText.color.a > 0 && !skip)
+        {
+            phaseNoticeQueue.Enqueue(textToDisplay);
+            return;
+        }
+
+        if(phaseNoticeCoroutine != null)
+        {
+            StopCoroutine(phaseNoticeCoroutine);
+        }
+
+        phaseNoticeCoroutine = StartCoroutine(PhaseDisplayDelay(textToDisplay,skip));
+    }
+
+    public IEnumerator PhaseDisplayDelay(string message = "", bool skip = false)
+    {
+        if (skip)
+        {
+            phaseText.text = message;
+            phaseNoticeQueue.Clear();
+        }
+
+        else
+        {
+            phaseNoticeQueue.Enqueue(message);
+
+            phaseText.text = phaseNoticeQueue.Dequeue();
+        }
+
+        float i = 0.0f;
+        float rate = 0.0f;
+        Color32 startColor = new Color32(255, 0, 0, 255);
+        Color32 endColor = new Color32(255, 0, 0, 0);
+
+        rate = (1.0f / 4.5f) * 2.5f;
+        while (i < 1.0f)
+        {
+            i += Time.deltaTime * rate;
+            phaseText.color = Color32.Lerp(startColor, endColor, (i));
+            yield return null;
+        }
+
+        if(phaseNoticeQueue.Count > 0)
+        {
+            StartCoroutine(PhaseDisplayDelay(phaseNoticeQueue.Dequeue()));
+        }
+        else
+        {
+            phasePanel.SetActive(false);
+        }
     }
 
     //PHASES
-
     public void PlayerStartPhase()
     {
         if (firstTurn)
@@ -509,7 +567,7 @@ public class GameplayManager : MonoBehaviour
                 //In final game, will have to always draw the hand of the current player unless they are the judge obviously.
                 if(playersList[i].isCurrentlyJudge)
                 {
-                    Debug.Log($"Player: {playersList[i].playerID} 's hand is being recreated.");
+                  //  Debug.Log($"Player: {playersList[i].playerID} 's hand is being recreated.");
                   //  RecreateHand(i);
                     playerIDToRecreate = i;
                 }
@@ -546,7 +604,7 @@ public class GameplayManager : MonoBehaviour
             RecreateHand(playerIDToRecreate);
         }
 
-        SetPhase(Phase.judgeStart);
+        SetPhase(Phase.sentenceCardDraw);
     }
 
     //Plays the Word card to fill in the sentence blank.
@@ -687,6 +745,10 @@ public class GameplayManager : MonoBehaviour
                     }
                     break;
                 }
+            case WordManager.ChainCategory.None:
+                {
+                    break;
+                }
             default:
                 {
                     Debug.LogError("Couldn't find currentBlankCategory!!!");
@@ -710,44 +772,48 @@ public class GameplayManager : MonoBehaviour
         if (currentPlayer.usedItemThisTurn)
         {
             GameObject tempObj = Instantiate(PopupDialougeManager.instance.popupPrefab, playerCanvasParent.GetComponentInParent<Canvas>().transform, false);
-            tempObj.GetComponent<PopupDialouge>().SetupPopup("You already used an item this turn!");
-            Debug.LogWarning("You already used an item this turn!");
+            tempObj.GetComponent<PopupDialouge>().SetupPopup("You've already used an item this turn!");
+          //  Debug.LogWarning("You've already used an item this turn!");
             return;
         }
         else
         {
-
             itemMangerReference.ItemTypeHandler(itemPlayed, currentPlayer, playersList);
-
-            //Execute the code below if they used the item via the dialouge box...For now just leave this here.
-            foreach (Player_Gameplay player in playersList)
-            {
-                if (player.playerID == currentPlayer.playerID)
-                {
-
-                    List<ItemCardPrefab> cachedListOfItems = new List<ItemCardPrefab>(player.itemPrefabsInHand);
-                    //Could have multiple of the same item...The index might need to be used here.
-                    foreach (ItemCardPrefab itemPrefab in cachedListOfItems)
-                    {
-                        if (itemPrefab.itemData == itemPlayed)
-                        {
-                            Debug.LogWarning($"Used the {itemPlayed.itemType} item!");
-                            player.itemPrefabsInHand.Remove(itemPrefab);
-                            Destroy(itemPrefab.gameObject);
-                            player.cardsInHand -= 1;
-                            player.UpdateCardsInHand(player.cardsInHand);
-                            RecreateHand(currentPlayer.playerID);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            currentPlayer.ToggleUsedItem(true);
         }
 
         //For now, we'll have the other players just play their word cards.
         theButton.onClick.RemoveAllListeners();
+    }
+
+    public void UpdatePlayerHandAfterUsingItemCard(ItemData itemPlayed, Player_Gameplay currentPlayer)
+    {
+        //Execute the code below if they used the item via the dialouge box...For now just leave this here.
+        foreach (Player_Gameplay player in playersList)
+        {
+            if (player.playerID == currentPlayer.playerID)
+            {
+
+                List<ItemCardPrefab> cachedListOfItems = new List<ItemCardPrefab>(player.itemPrefabsInHand);
+                //Could have multiple of the same item...The index might need to be used here.
+                foreach (ItemCardPrefab itemPrefab in cachedListOfItems)
+                {
+                    if (itemPrefab.itemData == itemPlayed)
+                    {
+                        Debug.LogWarning($"Used the {itemPlayed.itemType} item!");
+                        player.itemPrefabsInHand.Remove(itemPrefab);
+                        Destroy(itemPrefab.gameObject);
+                        player.cardsInHand -= 1;
+                        player.UpdateCardsInHand(player.cardsInHand);
+                        RecreateHand(currentPlayer.playerID);
+                        break;
+                    }
+                }
+            }
+        }
+
+        currentPlayer.ToggleUsedItem(true);
+        //Need some type of check just in case we allow multiple items in 1 turn for some reason.
+        SetPhase(Phase.placeWord);
     }
 
     private void DrawSentenceCard()
@@ -755,7 +821,6 @@ public class GameplayManager : MonoBehaviour
         int randSentence;
         int randBlankType;
         int randBlankCategory;
-        int randBlankSubCategory;
         TextMeshProUGUI sentenceDisplayText = sentenceDisplayPanel.GetComponentInChildren<SentenceCardPrefab>().sentenceText;
         TextMeshProUGUI sentenceBlankText = sentenceDisplayPanel.GetComponentInChildren<SentenceCardPrefab>().sentenceBlankType;
 
@@ -786,12 +851,10 @@ public class GameplayManager : MonoBehaviour
             tempSentenceCard.GetComponentInChildren<SentenceCardPrefab>().sentenceText.text = tempString;
             tempSentenceCard.SetActive(false);
         }
-
-
         //UPDATE THIS TO RANDOMIZE A SENTENCE WITHIN THE DECK + IT'S TYPE/BLANK.
         sentenceDisplayText.text = tempString;
 
-
+        SetPhase(Phase.item);
     }
 
     private int SetSubCategory(TextMeshProUGUI sentenceBlankText)
@@ -834,9 +897,10 @@ public class GameplayManager : MonoBehaviour
             default:
                 {
                     //EXTRA, not needed for now. Just a placeholder.
-                    randBlankSubCategory = Random.Range(0, typeof(WordManager.WordGroup).GetFields().Length);
-                    currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
-                    sentenceBlankText.text = currentBlankCategory.ToString();
+                    randBlankSubCategory = -1;
+                    //randBlankSubCategory = Random.Range(0, typeof(WordManager.WordGroup).GetFields().Length);
+                    //currentBlankSubCategory = new Tuple<WordManager.ChainCategory, int>(currentBlankCategory, randBlankSubCategory);
+                    //sentenceBlankText.text = currentBlankCategory.ToString();
                     break;
                 }
         }

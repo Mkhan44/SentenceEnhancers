@@ -27,9 +27,9 @@ public class PopupDialouge : MonoBehaviour
         noticeText.text = noticeMessage;
     }
 
-    public void SetupOpponentPopup(string dialougeMessage, GameObject opponentButtonPrefab, int numPlayers, Player_Gameplay currentPlayer, List<Player_Gameplay> playersList, string noticeMessage = "Choose opponent", string parentToFind = "OpponentsButtonGroup")
+    public void SetupOpponentPopup(string dialougeMessage, GameObject opponentButtonPrefab, int numPlayers, Player_Gameplay currentPlayer, List<Player_Gameplay> playersList, ItemData itemData, string noticeMessage = "Choose opponent", string parentToFind = "OpponentsButtonGroup")
     {
-        RectTransform buttonPanel = GameObject.Find("OpponentsButtonGroup").GetComponent<RectTransform>();
+        RectTransform buttonPanel = GameObject.Find(parentToFind).GetComponent<RectTransform>();
         dialougeText.text = dialougeMessage;
         noticeText.text = noticeMessage;
 
@@ -42,8 +42,19 @@ public class PopupDialouge : MonoBehaviour
                 Button itemButton = tempObj.GetComponent<Button>();
 
                 //NEED TO CHANGE THIS LINE SO THAT IT'S MORE DYNAMIC.
-                itemButton.onClick.AddListener(() => itemManagerRef.FreezeWord(player_Gameplay));
-
+                switch(itemData.itemType)
+                {
+                    case ItemData.ItemType.Freeze:
+                        {
+                            itemButton.onClick.AddListener(() => itemManagerRef.FreezeWord(player_Gameplay, itemData, currentPlayer));
+                            break;
+                        }
+                    default:
+                        {
+                            break;
+                        }
+                }
+                
                 itemButton.onClick.AddListener(() => PopupDialougeManager.instance.CleanupAllPopups());
             }
         }

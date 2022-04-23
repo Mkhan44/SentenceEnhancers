@@ -9,12 +9,35 @@ using UnityEngine.UI;
 using TMPro;
 public class WordCardPrefab : MonoBehaviour
 {
+    private GameplayManager gameplayManager;
+    private Button thisButton;
+    const string GAMEMANAGER = "GameManager";
     public WordData wordData;
     public TextMeshProUGUI cardTypeText;
     public TextMeshProUGUI cardWordText;
 
     public bool isFrozen;
 
+    private void Start()
+    {
+        gameplayManager = GameObject.Find(GAMEMANAGER).GetComponent<GameplayManager>();
+        thisButton = GetComponent<Button>();
+    }
+
+    private void Update()
+    {
+        if(gameplayManager.GetPhase() != GameplayManager.Phase.placeWord)
+        {
+            thisButton.interactable = false;
+        }
+        else
+        {
+            if(!isFrozen)
+            {
+                thisButton.interactable = true;
+            }
+        }
+    }
     public WordCardPrefab()
     {
         wordData = null;

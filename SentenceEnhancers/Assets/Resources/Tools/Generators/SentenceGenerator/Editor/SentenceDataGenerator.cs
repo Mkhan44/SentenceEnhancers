@@ -4,6 +4,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,15 +16,32 @@ public class SentenceDataGenerator : Editor
 
     private const string BASEFOLDERPATH = "Assets/SentenceData/";
     private const string TESTPATH = "TEST/";
+    public static string filePath;
 
 
     private void OnEnable()
     {
         sentenceGeneratorList = (SentenceGeneratorList)FindObjectOfType(typeof(SentenceGeneratorList));
+        filePath = "Assets/SentenceData/";
     }
 
     public override void OnInspectorGUI()
     {
+        EditorGUI.BeginChangeCheck();
+
+        SpaceOutGUIVertically(50);
+
+        filePath = FolderField(new GUIContent("Save to", "Where to save..."), filePath);
+
+        //if (GUILayout.Button("Select file path..."))
+        //{
+        //    filePath = EditorUtility.OpenFolderPanel("TEST", filePath, string.Empty);
+        //    filePath = filePath.Substring(filePath.IndexOf("Assets"));
+        //    Debug.Log($"File path: {filePath}");
+        //}
+
+        SpaceOutGUIVertically(50);
+
         base.OnInspectorGUI();
 
         if (GUILayout.Button("GENERATE SENTENCE"))
@@ -35,15 +53,15 @@ public class SentenceDataGenerator : Editor
             }
 
             List<SentenceGeneratorList.SentenceGeneratorListWrapper> sentenceGeneratorListWrapper = sentenceGeneratorList.wordGeneratorListWrappers;
-            string basePath = BASEFOLDERPATH;
+            string basePath = filePath;
 
             for (int i = 0; i < sentenceGeneratorListWrapper.Count; i++)
             {
                 if (sentenceGeneratorListWrapper[i].dataName != string.Empty && sentenceGeneratorListWrapper[i].originalSentence != string.Empty)
                 {
-                    basePath = BASEFOLDERPATH;
+                    basePath = filePath + "/";
 
-                    basePath = basePath + TESTPATH;
+                    //basePath = basePath + TESTPATH;
                     //switch (sentenceGeneratorListWrapper[i].wordGroup)
                     //{
                     //    case WordManager.WordGroup.Slang:
@@ -101,7 +119,7 @@ public class SentenceDataGenerator : Editor
             }
         }
 
-        GUILayout.Space(50);
+        SpaceOutGUIVertically(50);
 
         //Button to clear the list maybe?
         //if(GUILayout.Button("Clear list"))
@@ -115,9 +133,51 @@ public class SentenceDataGenerator : Editor
         //    wordGeneratorList.wordGeneratorListWrappers.Clear();
         //}
 
+        EditorGUI.EndChangeCheck();
+
     }
 
+    string FolderField(GUIContent label, string localPath)
+    {
+        using (new GUILayout.HorizontalScope())
+        {
+            string tempPath = EditorGUILayout.TextField(label, localPath);
+            if(string.IsNullOrEmpty(tempPath.Trim()))
+            {
+                return localPath;
+            }
 
+            string fullPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), filePath));
+            if(!Directory.Exists(fullPath))
+            {
+                return localPath;
+            }
+
+            if(GUILayout.Button("Browse...", EditorStyles.miniButton, GUILayout.Width(100)))
+            {
+                string newPath = EditorUtility.OpenFolderPanel(label.text, fullPath, "");
+                if(!string.IsNullOrEmpty(newPath.Trim()))
+                {
+                    int index = newPath.IndexOf("Assets/", System.StringComparison.Ordinal);
+                    if(index < 0)
+                    {
+                        Debug.LogError("Invalid path selected.");
+                    }
+                    else
+                    {
+                        localPath = newPath.Substring(index);
+                    }
+                }
+            }
+        }
+
+        return localPath;
+    }
+
+    private static void SpaceOutGUIVertically(int space)
+    {
+        GUILayout.Space(space);
+    }
 }
 
 
